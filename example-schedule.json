@@ -1,0 +1,31 @@
+{
+  "schedule": {
+    "weekdays": {
+      "monday": [
+        { "from": "09:00", "to": "11:00", "replicas": 2 },
+        { "from": "11:00", "to": "19:00", "replicas": 3 }
+      ],
+      "tuesday": [
+        { "from": "08:00", "to": "17:00", "replicas": 1 }
+      ],
+      "wednesday": [],
+      "thursday": [],
+      "friday": [],
+      "saturday": [],
+      "sunday": []
+    },
+    "dates": {
+      "2026-01-01": [
+        { "from": "10:00", "to": "18:00", "replicas": 5 }
+      ],
+      "2026-01-02": [
+        { "from": "09:00", "to": "12:00", "replicas": 2 },
+        { "from": "13:00", "to": "17:00", "replicas": 4 }
+      ]
+    },
+    "exceptions": [
+      "2026-01-03",
+      "2026-01-08"
+    ]
+  }
+}

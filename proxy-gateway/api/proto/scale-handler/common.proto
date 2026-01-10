@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package scalehandler;
+
+option go_package = "proxy-gateway/pkg/api/proto/scale-handler";
+
+message TimeRange {
+  string from = 1;
+  string to = 2;
+  int32 replicas = 3;
+}
+
+message Schedule {
+  message DaySchedule {
+    repeated TimeRange time_ranges = 1;
+  }
+  
+  map<string, DaySchedule> weekdays = 1;
+  map<string, DaySchedule> dates = 2;
+  repeated string exceptions = 3;
+}

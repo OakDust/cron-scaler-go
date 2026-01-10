@@ -1,0 +1,12 @@
+schema_version: 1
+
+sources:
+  - directory: api/proto/scale-handler
+    patterns:
+      - "*.proto"
+
+targets:
+  go:
+    output_directory: pkg/api/proto/scale-handler
+    options:
+      paths: source_relative
