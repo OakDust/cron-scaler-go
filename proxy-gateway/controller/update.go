@@ -7,12 +7,13 @@ import (
 	"net/http"
 
 	scalehandlerv1 "proxy-gateway/pkg/api/proto/scale-handler"
+	"proxy-gateway/pkg/schedule"
 
 	"github.com/google/uuid"
 )
 
 type UpdateScheduleRequest struct {
-	Schedule *scalehandlerv1.Schedule `json:"schedule"`
+	Schedule *schedule.ScheduleDTO `json:"schedule"`
 }
 
 func (c *Controller) UpdateSchedule(w http.ResponseWriter, r *http.Request) {
@@ -53,16 +54,17 @@ func (c *Controller) UpdateSchedule(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Валидируем schedule
-	if err := c.validateSchedule(req.Schedule); err != nil {
+	if err := c.validateScheduleDTO(req.Schedule); err != nil {
 		c.logger.Error("Schedule validation failed", "error", err)
 		writeError(w, http.StatusBadRequest, fmt.Sprintf("Validation failed: %v", err))
 		return
 	}
 
-	// Вызываем gRPC метод
+	// Конвертируем в proto и вызываем gRPC
+	protoSchedule := schedule.DTOToProto(req.Schedule)
 	grpcReq := &scalehandlerv1.UpdateRequest{
 		Id:       id,
-		Schedule: req.Schedule,
+		Schedule: protoSchedule,
 	}
 
 	resp, err := c.grpcClient.Update(ctx, grpcReq)

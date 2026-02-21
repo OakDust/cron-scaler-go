@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package scalehandler;
+
+option go_package = "proxy-gateway/pkg/api/proto/scale-handler";
+
+import "common.proto";
+
+message CreateRequest {
+  Schedule schedule = 1;
+}
+
+message CreateResponse {
+  string id = 1;
+}
+
+message UpdateRequest {
+  string id = 1;
+  Schedule schedule = 2;
+}
+
+message UpdateResponse {
+  bool success = 1;
+}
+
+message GetRequest {
+  string id = 1;
+}
+
+message GetResponse {
+  Schedule schedule = 1;
+}
+
+message ListRequest {}
+
+message ListResponse {
+  repeated Schedule schedules = 1;
+}
+
+message DeleteRequest {
+  string id = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}

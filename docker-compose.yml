@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: scale-handler-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: scale_handler
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scale_handler"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - scale-handler-network
+
+  # scale-handler:
+  #   build:
+  #     context: ./scale-handler
+  #     dockerfile: Dockerfile
+  #   container_name: scale-handler
+  #   environment:
+  #     GRPC_PORT: 50051
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USER: postgres
+  #     DB_PASSWORD: postgres
+  #     DB_NAME: scale_handler
+  #     DB_SSLMODE: disable
+  #   ports:
+  #     - "50051:50051"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "nc -z localhost 50051 || exit 1"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 10
+  #     start_period: 15s
+  #   networks:
+  #     - scale-handler-network
+  #   restart: unless-stopped
+
+  # proxy-gateway:
+  #   build:
+  #     context: ./proxy-gateway
+  #     dockerfile: Dockerfile
+  #   container_name: proxy-gateway
+  #   environment:
+  #     HTTP_PORT: 8080
+  #     GRPC_SERVER_ADDR: scale-handler:50051
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     scale-handler:
+  #       condition: service_healthy
+  #   networks:
+  #     - scale-handler-network
+  #   restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  scale-handler-network:
+    driver: bridge

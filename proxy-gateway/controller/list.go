@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	scalehandlerv1 "proxy-gateway/pkg/api/proto/scale-handler"
+	"proxy-gateway/pkg/schedule"
 )
 
 func (c *Controller) ListSchedules(w http.ResponseWriter, r *http.Request) {
@@ -19,8 +20,13 @@ func (c *Controller) ListSchedules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Возвращаем ответ
+	// Конвертируем в удобный REST-формат
+	schedulesDTO := make([]*schedule.ScheduleDTO, len(resp.Schedules))
+	for i, s := range resp.Schedules {
+		schedulesDTO[i] = schedule.ProtoToDTO(s)
+	}
+
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"schedules": resp.Schedules,
+		"schedules": schedulesDTO,
 	})
 }

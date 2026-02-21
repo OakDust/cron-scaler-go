@@ -10,10 +10,11 @@ import (
 	"time"
 
 	scalehandlerv1 "proxy-gateway/pkg/api/proto/scale-handler"
+	"proxy-gateway/pkg/schedule"
 )
 
 type CreateScheduleRequest struct {
-	Schedule *scalehandlerv1.Schedule `json:"schedule"`
+	Schedule *schedule.ScheduleDTO `json:"schedule"`
 }
 
 func (c *Controller) CreateSchedule(w http.ResponseWriter, r *http.Request) {
@@ -43,16 +44,17 @@ func (c *Controller) CreateSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Простая валидация времени
-	if err := c.validateSchedule(scheduleReq.Schedule); err != nil {
+	// Валидация формата
+	if err := c.validateScheduleDTO(scheduleReq.Schedule); err != nil {
 		c.logger.Error("Schedule validation failed", "error", err)
 		writeError(w, http.StatusBadRequest, fmt.Sprintf("Validation failed: %v", err))
 		return
 	}
 
-	// Отправляем запрос в gRPC сервис
+	// Конвертируем в proto и отправляем в gRPC
+	protoSchedule := schedule.DTOToProto(scheduleReq.Schedule)
 	req := &scalehandlerv1.CreateRequest{
-		Schedule: scheduleReq.Schedule,
+		Schedule: protoSchedule,
 	}
 
 	resp, err := c.grpcClient.Create(ctx, req)
@@ -102,12 +104,51 @@ func (c *Controller) parseMultipartForm(r *http.Request) (CreateScheduleRequest,
 	return req, nil
 }
 
-func (c *Controller) validateSchedule(schedule *scalehandlerv1.Schedule) error {
+func (c *Controller) validateScheduleDTO(s *schedule.ScheduleDTO) error {
 	// Проверяем формат времени HH:MM
 	timeRegex := regexp.MustCompile(`^([01]?[0-9]|2[0-3]):[0-5][0-9]$`)
+	// Формат даты ISO 8601: YYYY-MM-DD
+	dateRegex := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
 	// Проверяем weekdays
-	for _, daySchedule := range schedule.Weekdays {
+	for day, ranges := range s.Weekdays {
+		for _, tr := range ranges {
+			if !timeRegex.MatchString(tr.From) {
+				return fmt.Errorf("invalid time format for 'from' in %s: %s", day, tr.From)
+			}
+			if !timeRegex.MatchString(tr.To) {
+				return fmt.Errorf("invalid time format for 'to' in %s: %s", day, tr.To)
+			}
+			fromTime, _ := time.Parse("15:04", tr.From)
+			toTime, _ := time.Parse("15:04", tr.To)
+			if !fromTime.Before(toTime) {
+				return fmt.Errorf("'from' time must be before 'to' time: %s - %s", tr.From, tr.To)
+			}
+		}
+	}
+
+	// Проверяем dates (формат YYYY-MM-DD)
+	for date := range s.Dates {
+		if !dateRegex.MatchString(date) {
+			return fmt.Errorf("invalid date format: %s, expected YYYY-MM-DD", date)
+		}
+	}
+
+	// Проверяем exceptions
+	for _, date := range s.Exceptions {
+		if !dateRegex.MatchString(date) {
+			return fmt.Errorf("invalid exception date format: %s, expected YYYY-MM-DD", date)
+		}
+	}
+
+	return nil
+}
+
+func (c *Controller) validateSchedule(s *scalehandlerv1.Schedule) error {
+	timeRegex := regexp.MustCompile(`^([01]?[0-9]|2[0-3]):[0-5][0-9]$`)
+	dateRegex := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+
+	for _, daySchedule := range s.Weekdays {
 		if daySchedule == nil {
 			continue
 		}
@@ -121,8 +162,6 @@ func (c *Controller) validateSchedule(schedule *scalehandlerv1.Schedule) error {
 			if !timeRegex.MatchString(tr.To) {
 				return fmt.Errorf("invalid time format for 'to': %s", tr.To)
 			}
-
-			// Проверяем что from < to
 			fromTime, _ := time.Parse("15:04", tr.From)
 			toTime, _ := time.Parse("15:04", tr.To)
 			if !fromTime.Before(toTime) {
@@ -131,18 +170,15 @@ func (c *Controller) validateSchedule(schedule *scalehandlerv1.Schedule) error {
 		}
 	}
 
-	// Проверяем dates (формат DD-MM-YYYY)
-	dateRegex := regexp.MustCompile(`^\d{2}-\d{2}-\d{4}$`)
-	for date := range schedule.Dates {
+	for date := range s.Dates {
 		if !dateRegex.MatchString(date) {
-			return fmt.Errorf("invalid date format: %s, expected DD-MM-YYYY", date)
+			return fmt.Errorf("invalid date format: %s, expected YYYY-MM-DD", date)
 		}
 	}
 
-	// Проверяем exceptions
-	for _, date := range schedule.Exceptions {
+	for _, date := range s.Exceptions {
 		if !dateRegex.MatchString(date) {
-			return fmt.Errorf("invalid exception date format: %s, expected DD-MM-YYYY", date)
+			return fmt.Errorf("invalid exception date format: %s, expected YYYY-MM-DD", date)
 		}
 	}
 

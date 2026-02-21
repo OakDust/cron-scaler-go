@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	scalehandlerv1 "proxy-gateway/pkg/api/proto/scale-handler"
+	"proxy-gateway/pkg/schedule"
 
 	"github.com/google/uuid"
 )
@@ -35,9 +36,10 @@ func (c *Controller) GetSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Возвращаем ответ
+	// Конвертируем в удобный REST-формат и возвращаем
+	scheduleDTO := schedule.ProtoToDTO(resp.Schedule)
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"schedule": resp.Schedule,
+		"schedule": scheduleDTO,
 	})
 }
 
