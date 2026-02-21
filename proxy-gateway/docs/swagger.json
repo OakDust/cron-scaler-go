@@ -1,0 +1,432 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "REST API для управления расписаниями масштабирования",
+        "title": "Cron Scaler Proxy Gateway API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/v1/schedules": {
+            "get": {
+                "description": "Возвращает все расписания",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Список расписаний",
+                "responses": {
+                    "200": {
+                        "description": "items",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Создаёт новое расписание масштабирования с указанием weekdays, dates, exceptions и application",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Создать расписание",
+                "parameters": [
+                    {
+                        "description": "Schedule and Application",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.CreateScheduleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "id",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/schedules/{id}": {
+            "get": {
+                "description": "Получает расписание по ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Получить расписание",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Schedule UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "schedule, application",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Обновляет расписание по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Обновить расписание",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Schedule UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Schedule and Application",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UpdateScheduleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет расписание и связанные K8s ресурсы",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "schedules"
+                ],
+                "summary": "Удалить расписание",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Schedule UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller.CreateScheduleRequest": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/schedule.ApplicationDTO"
+                },
+                "schedule": {
+                    "$ref": "#/definitions/schedule.ScheduleDTO"
+                }
+            }
+        },
+        "controller.UpdateScheduleRequest": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "$ref": "#/definitions/schedule.ApplicationDTO"
+                },
+                "schedule": {
+                    "$ref": "#/definitions/schedule.ScheduleDTO"
+                }
+            }
+        },
+        "schedule.ApplicationDTO": {
+            "type": "object",
+            "properties": {
+                "containers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schedule.ContainerDTO"
+                    }
+                }
+            }
+        },
+        "schedule.ContainerDTO": {
+            "type": "object",
+            "properties": {
+                "env": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schedule.EnvVarDTO"
+                    }
+                },
+                "image": {
+                    "type": "string"
+                },
+                "livenessProbe": {
+                    "$ref": "#/definitions/schedule.ProbeDTO"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/schedule.ContainerPortDTO"
+                    }
+                },
+                "readinessProbe": {
+                    "$ref": "#/definitions/schedule.ProbeDTO"
+                },
+                "resources": {
+                    "$ref": "#/definitions/schedule.ResourcesDTO"
+                }
+            }
+        },
+        "schedule.ContainerPortDTO": {
+            "type": "object",
+            "properties": {
+                "containerPort": {
+                    "type": "integer"
+                },
+                "protocol": {
+                    "description": "TCP, UDP",
+                    "type": "string"
+                }
+            }
+        },
+        "schedule.EnvVarDTO": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "schedule.HTTPGetActionDTO": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                }
+            }
+        },
+        "schedule.ProbeDTO": {
+            "type": "object",
+            "properties": {
+                "httpGet": {
+                    "$ref": "#/definitions/schedule.HTTPGetActionDTO"
+                },
+                "initialDelaySeconds": {
+                    "type": "integer"
+                },
+                "periodSeconds": {
+                    "type": "integer"
+                }
+            }
+        },
+        "schedule.ResourceQuantityDTO": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "string"
+                },
+                "memory": {
+                    "type": "string"
+                }
+            }
+        },
+        "schedule.ResourcesDTO": {
+            "type": "object",
+            "properties": {
+                "limits": {
+                    "$ref": "#/definitions/schedule.ResourceQuantityDTO"
+                },
+                "requests": {
+                    "$ref": "#/definitions/schedule.ResourceQuantityDTO"
+                }
+            }
+        },
+        "schedule.ScheduleDTO": {
+            "type": "object",
+            "properties": {
+                "dates": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/schedule.TimeRangeDTO"
+                        }
+                    }
+                },
+                "exceptions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "weekdays": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/schedule.TimeRangeDTO"
+                        }
+                    }
+                }
+            }
+        },
+        "schedule.TimeRangeDTO": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "replicas": {
+                    "type": "integer"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

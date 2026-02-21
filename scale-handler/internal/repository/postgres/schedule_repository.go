@@ -49,45 +49,45 @@ func NewScheduleRepository(db *sqlx.DB, logger *slog.Logger) *ScheduleRepository
 	}
 }
 
-func (r *ScheduleRepository) Create(ctx context.Context, rules domain.ScheduleRules) (*domain.Schedule, error) {
-	// Явно указываем схему public и тип jsonb
+func (r *ScheduleRepository) Create(ctx context.Context, rules domain.ScheduleRules, application *domain.Application) (*domain.Schedule, error) {
 	query := `
-		INSERT INTO public.schedules (rules)
-		VALUES ($1::jsonb)
-		RETURNING id, rules, created_at, updated_at
+		INSERT INTO public.schedules (rules, application)
+		VALUES ($1::jsonb, $2::jsonb)
+		RETURNING id, rules, application, created_at, updated_at
 	`
-
-	r.logger.Debug("Creating schedule", "query", query)
 
 	rulesJSON, err := json.Marshal(rules)
 	if err != nil {
-		r.logger.Error("Failed to marshal rules", "error", err)
 		return nil, fmt.Errorf("failed to marshal rules: %w", err)
 	}
 
-	r.logger.Debug("Marshaled rules", "rules", string(rulesJSON))
+	var appArg interface{}
+	if application != nil {
+		b, _ := json.Marshal(application)
+		appArg = string(b)
+	}
 
 	var schedule domain.Schedule
-	var rulesBytes []byte
+	var rulesBytes, appBytes []byte
 
-	// Используем string(rulesJSON) для явного преобразования
-	err = r.db.QueryRowContext(ctx, query, string(rulesJSON)).Scan(
+	err = r.db.QueryRowContext(ctx, query, string(rulesJSON), appArg).Scan(
 		&schedule.ID,
 		&rulesBytes,
+		&appBytes,
 		&schedule.CreatedAt,
 		&schedule.UpdatedAt,
 	)
 	if err != nil {
-		r.logger.Error("Failed to create schedule", "error", err, "query", query)
 		return nil, fmt.Errorf("failed to create schedule: %w", err)
 	}
 
-	r.logger.Debug("Schedule created", "id", schedule.ID)
-
-	// Декодируем rules обратно
 	if err := json.Unmarshal(rulesBytes, &schedule.Rules); err != nil {
-		r.logger.Error("Failed to unmarshal rules", "error", err)
 		return nil, fmt.Errorf("failed to unmarshal rules: %w", err)
+	}
+	if len(appBytes) > 0 {
+		if err := json.Unmarshal(appBytes, &schedule.Application); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal application: %w", err)
+		}
 	}
 
 	return &schedule, nil
@@ -95,17 +95,18 @@ func (r *ScheduleRepository) Create(ctx context.Context, rules domain.ScheduleRu
 
 func (r *ScheduleRepository) GetByID(ctx context.Context, id string) (*domain.Schedule, error) {
 	query := `
-		SELECT id, rules, created_at, updated_at
+		SELECT id, rules, application, created_at, updated_at
 		FROM schedules
 		WHERE id = $1
 	`
 
 	var schedule domain.Schedule
-	var rulesBytes []byte
+	var rulesBytes, appBytes []byte
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&schedule.ID,
 		&rulesBytes,
+		&appBytes,
 		&schedule.CreatedAt,
 		&schedule.UpdatedAt,
 	)
@@ -116,9 +117,13 @@ func (r *ScheduleRepository) GetByID(ctx context.Context, id string) (*domain.Sc
 		return nil, fmt.Errorf("failed to get schedule: %w", err)
 	}
 
-	// Декодируем rules
 	if err := json.Unmarshal(rulesBytes, &schedule.Rules); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal rules: %w", err)
+	}
+	if len(appBytes) > 0 {
+		if err := json.Unmarshal(appBytes, &schedule.Application); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal application: %w", err)
+		}
 	}
 
 	return &schedule, nil
@@ -126,7 +131,7 @@ func (r *ScheduleRepository) GetByID(ctx context.Context, id string) (*domain.Sc
 
 func (r *ScheduleRepository) List(ctx context.Context) ([]*domain.Schedule, error) {
 	query := `
-		SELECT id, rules, created_at, updated_at
+		SELECT id, rules, application, created_at, updated_at
 		FROM schedules
 		ORDER BY created_at DESC
 	`
@@ -141,20 +146,25 @@ func (r *ScheduleRepository) List(ctx context.Context) ([]*domain.Schedule, erro
 
 	for rows.Next() {
 		var schedule domain.Schedule
-		var rulesBytes []byte
+		var rulesBytes, appBytes []byte
 
 		if err := rows.Scan(
 			&schedule.ID,
 			&rulesBytes,
+			&appBytes,
 			&schedule.CreatedAt,
 			&schedule.UpdatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan schedule: %w", err)
 		}
 
-		// Декодируем rules
 		if err := json.Unmarshal(rulesBytes, &schedule.Rules); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal rules: %w", err)
+		}
+		if len(appBytes) > 0 {
+			if err := json.Unmarshal(appBytes, &schedule.Application); err != nil {
+				return nil, fmt.Errorf("failed to unmarshal application: %w", err)
+			}
 		}
 
 		schedules = append(schedules, &schedule)
@@ -167,12 +177,12 @@ func (r *ScheduleRepository) List(ctx context.Context) ([]*domain.Schedule, erro
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) Update(ctx context.Context, id string, rules domain.ScheduleRules) (*domain.Schedule, error) {
+func (r *ScheduleRepository) Update(ctx context.Context, id string, rules domain.ScheduleRules, application *domain.Application) (*domain.Schedule, error) {
 	query := `
 		UPDATE schedules
-		SET rules = $1, updated_at = CURRENT_TIMESTAMP
-		WHERE id = $2
-		RETURNING id, rules, created_at, updated_at
+		SET rules = $1, application = $2, updated_at = CURRENT_TIMESTAMP
+		WHERE id = $3
+		RETURNING id, rules, application, created_at, updated_at
 	`
 
 	rulesJSON, err := json.Marshal(rules)
@@ -180,12 +190,19 @@ func (r *ScheduleRepository) Update(ctx context.Context, id string, rules domain
 		return nil, fmt.Errorf("failed to marshal rules: %w", err)
 	}
 
-	var schedule domain.Schedule
-	var rulesBytes []byte
+	var appArg interface{}
+	if application != nil {
+		b, _ := json.Marshal(application)
+		appArg = string(b)
+	}
 
-	err = r.db.QueryRowContext(ctx, query, rulesJSON, id).Scan(
+	var schedule domain.Schedule
+	var rulesBytes, appBytes []byte
+
+	err = r.db.QueryRowContext(ctx, query, rulesJSON, appArg, id).Scan(
 		&schedule.ID,
 		&rulesBytes,
+		&appBytes,
 		&schedule.CreatedAt,
 		&schedule.UpdatedAt,
 	)
@@ -196,9 +213,13 @@ func (r *ScheduleRepository) Update(ctx context.Context, id string, rules domain
 		return nil, fmt.Errorf("failed to update schedule: %w", err)
 	}
 
-	// Декодируем rules обратно
 	if err := json.Unmarshal(rulesBytes, &schedule.Rules); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal rules: %w", err)
+	}
+	if len(appBytes) > 0 {
+		if err := json.Unmarshal(appBytes, &schedule.Application); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal application: %w", err)
+		}
 	}
 
 	return &schedule, nil

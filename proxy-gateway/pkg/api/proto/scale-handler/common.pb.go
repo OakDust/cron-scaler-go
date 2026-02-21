@@ -141,6 +141,462 @@ func (x *Schedule) GetExceptions() []string {
 	return nil
 }
 
+type Application struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Containers    []*Container           `protobuf:"bytes,1,rep,name=containers,proto3" json:"containers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Application) Reset() {
+	*x = Application{}
+	mi := &file_common_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Application) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Application) ProtoMessage() {}
+
+func (x *Application) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Application.ProtoReflect.Descriptor instead.
+func (*Application) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Application) GetContainers() []*Container {
+	if x != nil {
+		return x.Containers
+	}
+	return nil
+}
+
+type Container struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Image          string                 `protobuf:"bytes,2,opt,name=image,proto3" json:"image,omitempty"`
+	Ports          []*ContainerPort       `protobuf:"bytes,3,rep,name=ports,proto3" json:"ports,omitempty"`
+	Env            []*EnvVar              `protobuf:"bytes,4,rep,name=env,proto3" json:"env,omitempty"`
+	Resources      *Resources             `protobuf:"bytes,5,opt,name=resources,proto3" json:"resources,omitempty"`
+	LivenessProbe  *Probe                 `protobuf:"bytes,6,opt,name=liveness_probe,json=livenessProbe,proto3" json:"liveness_probe,omitempty"`
+	ReadinessProbe *Probe                 `protobuf:"bytes,7,opt,name=readiness_probe,json=readinessProbe,proto3" json:"readiness_probe,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *Container) Reset() {
+	*x = Container{}
+	mi := &file_common_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Container) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Container) ProtoMessage() {}
+
+func (x *Container) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Container.ProtoReflect.Descriptor instead.
+func (*Container) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Container) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Container) GetImage() string {
+	if x != nil {
+		return x.Image
+	}
+	return ""
+}
+
+func (x *Container) GetPorts() []*ContainerPort {
+	if x != nil {
+		return x.Ports
+	}
+	return nil
+}
+
+func (x *Container) GetEnv() []*EnvVar {
+	if x != nil {
+		return x.Env
+	}
+	return nil
+}
+
+func (x *Container) GetResources() *Resources {
+	if x != nil {
+		return x.Resources
+	}
+	return nil
+}
+
+func (x *Container) GetLivenessProbe() *Probe {
+	if x != nil {
+		return x.LivenessProbe
+	}
+	return nil
+}
+
+func (x *Container) GetReadinessProbe() *Probe {
+	if x != nil {
+		return x.ReadinessProbe
+	}
+	return nil
+}
+
+type ContainerPort struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ContainerPort int32                  `protobuf:"varint,1,opt,name=container_port,json=containerPort,proto3" json:"container_port,omitempty"`
+	Protocol      string                 `protobuf:"bytes,2,opt,name=protocol,proto3" json:"protocol,omitempty"` // TCP, UDP
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ContainerPort) Reset() {
+	*x = ContainerPort{}
+	mi := &file_common_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ContainerPort) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContainerPort) ProtoMessage() {}
+
+func (x *ContainerPort) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContainerPort.ProtoReflect.Descriptor instead.
+func (*ContainerPort) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ContainerPort) GetContainerPort() int32 {
+	if x != nil {
+		return x.ContainerPort
+	}
+	return 0
+}
+
+func (x *ContainerPort) GetProtocol() string {
+	if x != nil {
+		return x.Protocol
+	}
+	return ""
+}
+
+type EnvVar struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnvVar) Reset() {
+	*x = EnvVar{}
+	mi := &file_common_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnvVar) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnvVar) ProtoMessage() {}
+
+func (x *EnvVar) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnvVar.ProtoReflect.Descriptor instead.
+func (*EnvVar) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *EnvVar) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *EnvVar) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+type Resources struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Requests      *ResourceQuantity      `protobuf:"bytes,1,opt,name=requests,proto3" json:"requests,omitempty"`
+	Limits        *ResourceQuantity      `protobuf:"bytes,2,opt,name=limits,proto3" json:"limits,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Resources) Reset() {
+	*x = Resources{}
+	mi := &file_common_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Resources) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Resources) ProtoMessage() {}
+
+func (x *Resources) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Resources.ProtoReflect.Descriptor instead.
+func (*Resources) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *Resources) GetRequests() *ResourceQuantity {
+	if x != nil {
+		return x.Requests
+	}
+	return nil
+}
+
+func (x *Resources) GetLimits() *ResourceQuantity {
+	if x != nil {
+		return x.Limits
+	}
+	return nil
+}
+
+type ResourceQuantity struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Memory        string                 `protobuf:"bytes,1,opt,name=memory,proto3" json:"memory,omitempty"`
+	Cpu           string                 `protobuf:"bytes,2,opt,name=cpu,proto3" json:"cpu,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResourceQuantity) Reset() {
+	*x = ResourceQuantity{}
+	mi := &file_common_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResourceQuantity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResourceQuantity) ProtoMessage() {}
+
+func (x *ResourceQuantity) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResourceQuantity.ProtoReflect.Descriptor instead.
+func (*ResourceQuantity) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ResourceQuantity) GetMemory() string {
+	if x != nil {
+		return x.Memory
+	}
+	return ""
+}
+
+func (x *ResourceQuantity) GetCpu() string {
+	if x != nil {
+		return x.Cpu
+	}
+	return ""
+}
+
+type Probe struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	HttpGet             *HttpGetAction         `protobuf:"bytes,1,opt,name=http_get,json=httpGet,proto3" json:"http_get,omitempty"`
+	InitialDelaySeconds int32                  `protobuf:"varint,2,opt,name=initial_delay_seconds,json=initialDelaySeconds,proto3" json:"initial_delay_seconds,omitempty"`
+	PeriodSeconds       int32                  `protobuf:"varint,3,opt,name=period_seconds,json=periodSeconds,proto3" json:"period_seconds,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *Probe) Reset() {
+	*x = Probe{}
+	mi := &file_common_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Probe) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Probe) ProtoMessage() {}
+
+func (x *Probe) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Probe.ProtoReflect.Descriptor instead.
+func (*Probe) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *Probe) GetHttpGet() *HttpGetAction {
+	if x != nil {
+		return x.HttpGet
+	}
+	return nil
+}
+
+func (x *Probe) GetInitialDelaySeconds() int32 {
+	if x != nil {
+		return x.InitialDelaySeconds
+	}
+	return 0
+}
+
+func (x *Probe) GetPeriodSeconds() int32 {
+	if x != nil {
+		return x.PeriodSeconds
+	}
+	return 0
+}
+
+type HttpGetAction struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	Port          int32                  `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HttpGetAction) Reset() {
+	*x = HttpGetAction{}
+	mi := &file_common_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HttpGetAction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HttpGetAction) ProtoMessage() {}
+
+func (x *HttpGetAction) ProtoReflect() protoreflect.Message {
+	mi := &file_common_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HttpGetAction.ProtoReflect.Descriptor instead.
+func (*HttpGetAction) Descriptor() ([]byte, []int) {
+	return file_common_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *HttpGetAction) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *HttpGetAction) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
 type Schedule_DaySchedule struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TimeRanges    []*TimeRange           `protobuf:"bytes,1,rep,name=time_ranges,json=timeRanges,proto3" json:"time_ranges,omitempty"`
@@ -150,7 +606,7 @@ type Schedule_DaySchedule struct {
 
 func (x *Schedule_DaySchedule) Reset() {
 	*x = Schedule_DaySchedule{}
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_common_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -162,7 +618,7 @@ func (x *Schedule_DaySchedule) String() string {
 func (*Schedule_DaySchedule) ProtoMessage() {}
 
 func (x *Schedule_DaySchedule) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_common_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -209,7 +665,38 @@ const file_common_proto_rawDesc = "" +
 	"\n" +
 	"DatesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x128\n" +
-	"\x05value\x18\x02 \x01(\v2\".scalehandler.Schedule.DayScheduleR\x05value:\x028\x01B+Z)proxy-gateway/pkg/api/proto/scale-handlerb\x06proto3"
+	"\x05value\x18\x02 \x01(\v2\".scalehandler.Schedule.DayScheduleR\x05value:\x028\x01\"F\n" +
+	"\vApplication\x127\n" +
+	"\n" +
+	"containers\x18\x01 \x03(\v2\x17.scalehandler.ContainerR\n" +
+	"containers\"\xc1\x02\n" +
+	"\tContainer\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05image\x18\x02 \x01(\tR\x05image\x121\n" +
+	"\x05ports\x18\x03 \x03(\v2\x1b.scalehandler.ContainerPortR\x05ports\x12&\n" +
+	"\x03env\x18\x04 \x03(\v2\x14.scalehandler.EnvVarR\x03env\x125\n" +
+	"\tresources\x18\x05 \x01(\v2\x17.scalehandler.ResourcesR\tresources\x12:\n" +
+	"\x0eliveness_probe\x18\x06 \x01(\v2\x13.scalehandler.ProbeR\rlivenessProbe\x12<\n" +
+	"\x0freadiness_probe\x18\a \x01(\v2\x13.scalehandler.ProbeR\x0ereadinessProbe\"R\n" +
+	"\rContainerPort\x12%\n" +
+	"\x0econtainer_port\x18\x01 \x01(\x05R\rcontainerPort\x12\x1a\n" +
+	"\bprotocol\x18\x02 \x01(\tR\bprotocol\"2\n" +
+	"\x06EnvVar\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\x7f\n" +
+	"\tResources\x12:\n" +
+	"\brequests\x18\x01 \x01(\v2\x1e.scalehandler.ResourceQuantityR\brequests\x126\n" +
+	"\x06limits\x18\x02 \x01(\v2\x1e.scalehandler.ResourceQuantityR\x06limits\"<\n" +
+	"\x10ResourceQuantity\x12\x16\n" +
+	"\x06memory\x18\x01 \x01(\tR\x06memory\x12\x10\n" +
+	"\x03cpu\x18\x02 \x01(\tR\x03cpu\"\x9a\x01\n" +
+	"\x05Probe\x126\n" +
+	"\bhttp_get\x18\x01 \x01(\v2\x1b.scalehandler.HttpGetActionR\ahttpGet\x122\n" +
+	"\x15initial_delay_seconds\x18\x02 \x01(\x05R\x13initialDelaySeconds\x12%\n" +
+	"\x0eperiod_seconds\x18\x03 \x01(\x05R\rperiodSeconds\"7\n" +
+	"\rHttpGetAction\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12\x12\n" +
+	"\x04port\x18\x02 \x01(\x05R\x04portB+Z)proxy-gateway/pkg/api/proto/scale-handlerb\x06proto3"
 
 var (
 	file_common_proto_rawDescOnce sync.Once
@@ -223,25 +710,42 @@ func file_common_proto_rawDescGZIP() []byte {
 	return file_common_proto_rawDescData
 }
 
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_common_proto_goTypes = []any{
 	(*TimeRange)(nil),            // 0: scalehandler.TimeRange
 	(*Schedule)(nil),             // 1: scalehandler.Schedule
-	(*Schedule_DaySchedule)(nil), // 2: scalehandler.Schedule.DaySchedule
-	nil,                          // 3: scalehandler.Schedule.WeekdaysEntry
-	nil,                          // 4: scalehandler.Schedule.DatesEntry
+	(*Application)(nil),          // 2: scalehandler.Application
+	(*Container)(nil),            // 3: scalehandler.Container
+	(*ContainerPort)(nil),        // 4: scalehandler.ContainerPort
+	(*EnvVar)(nil),               // 5: scalehandler.EnvVar
+	(*Resources)(nil),            // 6: scalehandler.Resources
+	(*ResourceQuantity)(nil),     // 7: scalehandler.ResourceQuantity
+	(*Probe)(nil),                // 8: scalehandler.Probe
+	(*HttpGetAction)(nil),        // 9: scalehandler.HttpGetAction
+	(*Schedule_DaySchedule)(nil), // 10: scalehandler.Schedule.DaySchedule
+	nil,                          // 11: scalehandler.Schedule.WeekdaysEntry
+	nil,                          // 12: scalehandler.Schedule.DatesEntry
 }
 var file_common_proto_depIdxs = []int32{
-	3, // 0: scalehandler.Schedule.weekdays:type_name -> scalehandler.Schedule.WeekdaysEntry
-	4, // 1: scalehandler.Schedule.dates:type_name -> scalehandler.Schedule.DatesEntry
-	0, // 2: scalehandler.Schedule.DaySchedule.time_ranges:type_name -> scalehandler.TimeRange
-	2, // 3: scalehandler.Schedule.WeekdaysEntry.value:type_name -> scalehandler.Schedule.DaySchedule
-	2, // 4: scalehandler.Schedule.DatesEntry.value:type_name -> scalehandler.Schedule.DaySchedule
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	11, // 0: scalehandler.Schedule.weekdays:type_name -> scalehandler.Schedule.WeekdaysEntry
+	12, // 1: scalehandler.Schedule.dates:type_name -> scalehandler.Schedule.DatesEntry
+	3,  // 2: scalehandler.Application.containers:type_name -> scalehandler.Container
+	4,  // 3: scalehandler.Container.ports:type_name -> scalehandler.ContainerPort
+	5,  // 4: scalehandler.Container.env:type_name -> scalehandler.EnvVar
+	6,  // 5: scalehandler.Container.resources:type_name -> scalehandler.Resources
+	8,  // 6: scalehandler.Container.liveness_probe:type_name -> scalehandler.Probe
+	8,  // 7: scalehandler.Container.readiness_probe:type_name -> scalehandler.Probe
+	7,  // 8: scalehandler.Resources.requests:type_name -> scalehandler.ResourceQuantity
+	7,  // 9: scalehandler.Resources.limits:type_name -> scalehandler.ResourceQuantity
+	9,  // 10: scalehandler.Probe.http_get:type_name -> scalehandler.HttpGetAction
+	0,  // 11: scalehandler.Schedule.DaySchedule.time_ranges:type_name -> scalehandler.TimeRange
+	10, // 12: scalehandler.Schedule.WeekdaysEntry.value:type_name -> scalehandler.Schedule.DaySchedule
+	10, // 13: scalehandler.Schedule.DatesEntry.value:type_name -> scalehandler.Schedule.DaySchedule
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_common_proto_init() }
@@ -255,7 +759,7 @@ func file_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

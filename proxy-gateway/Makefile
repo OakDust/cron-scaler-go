@@ -1,4 +1,4 @@
-.PHONY: proto clean
+.PHONY: proto swagger clean
 
 PROTO_DIR := api/proto/scale-handler
 OUT_DIR := pkg/api/proto/scale-handler
@@ -19,8 +19,12 @@ proto:
 	@echo "Done! Generated files in $(OUT_DIR)/"
 	@ls -la $(OUT_DIR)/
 
+swagger:
+	swag init -g cmd/main.go -o docs
+
 clean:
 	rm -rf $(OUT_DIR)/*.go
+	rm -rf docs/*.go docs/*.json docs/*.yaml
 
 proto-easyp:
 	@echo "Generating easyp code..."

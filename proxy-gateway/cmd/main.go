@@ -1,3 +1,9 @@
+// Package main - proxy-gateway API
+// @title Cron Scaler Proxy Gateway API
+// @version 1.0
+// @description REST API для управления расписаниями масштабирования
+// @host localhost:8080
+// @BasePath /
 package main
 
 import (
@@ -12,6 +18,10 @@ import (
 
 	"proxy-gateway/controller"
 	"proxy-gateway/internal/config"
+
+	_ "proxy-gateway/docs" // swagger docs
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
@@ -32,17 +42,18 @@ func main() {
 	}
 	defer ctrl.Close()
 
-	// Создаем роутер
-	router := controller.NewRouter(ctrl)
+	apiRouter := controller.NewRouter(ctrl)
+	mux := http.NewServeMux()
+	mux.Handle("/", apiRouter)
+	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	logger.Info("Starting proxy-gateway",
 		"port", cfg.HTTPPort,
 		"grpc_addr", cfg.GRPCServerAddr)
 
-	// Создаем HTTP сервер
 	server := &http.Server{
 		Addr:         ":" + cfg.HTTPPort,
-		Handler:      router,
+		Handler:      mux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

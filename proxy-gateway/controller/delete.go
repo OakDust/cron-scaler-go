@@ -8,6 +8,16 @@ import (
 	"github.com/google/uuid"
 )
 
+// DeleteSchedule godoc
+// @Summary      Удалить расписание
+// @Description  Удаляет расписание и связанные K8s ресурсы
+// @Tags         schedules
+// @Produce      json
+// @Param        id   path      string  true  "Schedule UUID"
+// @Success      200  {object}  map[string]bool  "success"
+// @Failure      400  {object}  map[string]string  "error"
+// @Failure      500  {object}  map[string]string  "error"
+// @Router       /v1/schedules/{id} [delete]
 func (c *Controller) DeleteSchedule(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	c.logger.Info("Handling delete schedule request")

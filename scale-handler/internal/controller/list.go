@@ -17,13 +17,15 @@ func (c *Controller) List(ctx context.Context, req *scalehandlerv1.ListRequest) 
 		return nil, err
 	}
 
-	// Конвертируем доменные модели в proto
-	var protoSchedules []*scalehandlerv1.Schedule
-	for _, schedule := range schedules {
-		protoSchedules = append(protoSchedules, converter.DomainToProto(schedule))
+	items := make([]*scalehandlerv1.ScheduleWithApplication, len(schedules))
+	for i, s := range schedules {
+		items[i] = &scalehandlerv1.ScheduleWithApplication{
+			Schedule:    converter.DomainToProto(s),
+			Application: converter.ApplicationToProto(s.Application),
+		}
 	}
 
 	return &scalehandlerv1.ListResponse{
-		Schedules: protoSchedules,
+		Items: items,
 	}, nil
 }

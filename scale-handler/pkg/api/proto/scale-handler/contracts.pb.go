@@ -24,6 +24,7 @@ const (
 type CreateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Schedule      *Schedule              `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	Application   *Application           `protobuf:"bytes,2,opt,name=application,proto3" json:"application,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -61,6 +62,13 @@ func (*CreateRequest) Descriptor() ([]byte, []int) {
 func (x *CreateRequest) GetSchedule() *Schedule {
 	if x != nil {
 		return x.Schedule
+	}
+	return nil
+}
+
+func (x *CreateRequest) GetApplication() *Application {
+	if x != nil {
+		return x.Application
 	}
 	return nil
 }
@@ -113,6 +121,7 @@ type UpdateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Schedule      *Schedule              `protobuf:"bytes,2,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	Application   *Application           `protobuf:"bytes,3,opt,name=application,proto3" json:"application,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -157,6 +166,13 @@ func (x *UpdateRequest) GetId() string {
 func (x *UpdateRequest) GetSchedule() *Schedule {
 	if x != nil {
 		return x.Schedule
+	}
+	return nil
+}
+
+func (x *UpdateRequest) GetApplication() *Application {
+	if x != nil {
+		return x.Application
 	}
 	return nil
 }
@@ -252,6 +268,7 @@ func (x *GetRequest) GetId() string {
 type GetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Schedule      *Schedule              `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	Application   *Application           `protobuf:"bytes,2,opt,name=application,proto3" json:"application,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -293,6 +310,13 @@ func (x *GetResponse) GetSchedule() *Schedule {
 	return nil
 }
 
+func (x *GetResponse) GetApplication() *Application {
+	if x != nil {
+		return x.Application
+	}
+	return nil
+}
+
 type ListRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -329,16 +353,68 @@ func (*ListRequest) Descriptor() ([]byte, []int) {
 	return file_contracts_proto_rawDescGZIP(), []int{6}
 }
 
-type ListResponse struct {
+type ScheduleWithApplication struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Schedules     []*Schedule            `protobuf:"bytes,1,rep,name=schedules,proto3" json:"schedules,omitempty"`
+	Schedule      *Schedule              `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	Application   *Application           `protobuf:"bytes,2,opt,name=application,proto3" json:"application,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ScheduleWithApplication) Reset() {
+	*x = ScheduleWithApplication{}
+	mi := &file_contracts_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScheduleWithApplication) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScheduleWithApplication) ProtoMessage() {}
+
+func (x *ScheduleWithApplication) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScheduleWithApplication.ProtoReflect.Descriptor instead.
+func (*ScheduleWithApplication) Descriptor() ([]byte, []int) {
+	return file_contracts_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ScheduleWithApplication) GetSchedule() *Schedule {
+	if x != nil {
+		return x.Schedule
+	}
+	return nil
+}
+
+func (x *ScheduleWithApplication) GetApplication() *Application {
+	if x != nil {
+		return x.Application
+	}
+	return nil
+}
+
+type ListResponse struct {
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Items         []*ScheduleWithApplication `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListResponse) Reset() {
 	*x = ListResponse{}
-	mi := &file_contracts_proto_msgTypes[7]
+	mi := &file_contracts_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -350,7 +426,7 @@ func (x *ListResponse) String() string {
 func (*ListResponse) ProtoMessage() {}
 
 func (x *ListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_contracts_proto_msgTypes[7]
+	mi := &file_contracts_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -363,12 +439,12 @@ func (x *ListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListResponse.ProtoReflect.Descriptor instead.
 func (*ListResponse) Descriptor() ([]byte, []int) {
-	return file_contracts_proto_rawDescGZIP(), []int{7}
+	return file_contracts_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ListResponse) GetSchedules() []*Schedule {
+func (x *ListResponse) GetItems() []*ScheduleWithApplication {
 	if x != nil {
-		return x.Schedules
+		return x.Items
 	}
 	return nil
 }
@@ -382,7 +458,7 @@ type DeleteRequest struct {
 
 func (x *DeleteRequest) Reset() {
 	*x = DeleteRequest{}
-	mi := &file_contracts_proto_msgTypes[8]
+	mi := &file_contracts_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -394,7 +470,7 @@ func (x *DeleteRequest) String() string {
 func (*DeleteRequest) ProtoMessage() {}
 
 func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_contracts_proto_msgTypes[8]
+	mi := &file_contracts_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -407,7 +483,7 @@ func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRequest) Descriptor() ([]byte, []int) {
-	return file_contracts_proto_rawDescGZIP(), []int{8}
+	return file_contracts_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *DeleteRequest) GetId() string {
@@ -426,7 +502,7 @@ type DeleteResponse struct {
 
 func (x *DeleteResponse) Reset() {
 	*x = DeleteResponse{}
-	mi := &file_contracts_proto_msgTypes[9]
+	mi := &file_contracts_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -438,7 +514,7 @@ func (x *DeleteResponse) String() string {
 func (*DeleteResponse) ProtoMessage() {}
 
 func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_contracts_proto_msgTypes[9]
+	mi := &file_contracts_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -451,7 +527,7 @@ func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
 func (*DeleteResponse) Descriptor() ([]byte, []int) {
-	return file_contracts_proto_rawDescGZIP(), []int{9}
+	return file_contracts_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *DeleteResponse) GetSuccess() bool {
@@ -465,28 +541,34 @@ var File_contracts_proto protoreflect.FileDescriptor
 
 const file_contracts_proto_rawDesc = "" +
 	"\n" +
-	"\x0fcontracts.proto\x12\fscalehandler\x1a\fcommon.proto\"C\n" +
+	"\x0fcontracts.proto\x12\fscalehandler\x1a\fcommon.proto\"\x80\x01\n" +
 	"\rCreateRequest\x122\n" +
-	"\bschedule\x18\x01 \x01(\v2\x16.scalehandler.ScheduleR\bschedule\" \n" +
+	"\bschedule\x18\x01 \x01(\v2\x16.scalehandler.ScheduleR\bschedule\x12;\n" +
+	"\vapplication\x18\x02 \x01(\v2\x19.scalehandler.ApplicationR\vapplication\" \n" +
 	"\x0eCreateResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"S\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x90\x01\n" +
 	"\rUpdateRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x122\n" +
-	"\bschedule\x18\x02 \x01(\v2\x16.scalehandler.ScheduleR\bschedule\"*\n" +
+	"\bschedule\x18\x02 \x01(\v2\x16.scalehandler.ScheduleR\bschedule\x12;\n" +
+	"\vapplication\x18\x03 \x01(\v2\x19.scalehandler.ApplicationR\vapplication\"*\n" +
 	"\x0eUpdateResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x1c\n" +
 	"\n" +
 	"GetRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"A\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"~\n" +
 	"\vGetResponse\x122\n" +
-	"\bschedule\x18\x01 \x01(\v2\x16.scalehandler.ScheduleR\bschedule\"\r\n" +
-	"\vListRequest\"D\n" +
-	"\fListResponse\x124\n" +
-	"\tschedules\x18\x01 \x03(\v2\x16.scalehandler.ScheduleR\tschedules\"\x1f\n" +
+	"\bschedule\x18\x01 \x01(\v2\x16.scalehandler.ScheduleR\bschedule\x12;\n" +
+	"\vapplication\x18\x02 \x01(\v2\x19.scalehandler.ApplicationR\vapplication\"\r\n" +
+	"\vListRequest\"\x8a\x01\n" +
+	"\x17ScheduleWithApplication\x122\n" +
+	"\bschedule\x18\x01 \x01(\v2\x16.scalehandler.ScheduleR\bschedule\x12;\n" +
+	"\vapplication\x18\x02 \x01(\v2\x19.scalehandler.ApplicationR\vapplication\"K\n" +
+	"\fListResponse\x12;\n" +
+	"\x05items\x18\x01 \x03(\v2%.scalehandler.ScheduleWithApplicationR\x05items\"\x1f\n" +
 	"\rDeleteRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"*\n" +
 	"\x0eDeleteResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccessB+Z)proxy-gateway/pkg/api/proto/scale-handlerb\x06proto3"
+	"\asuccess\x18\x01 \x01(\bR\asuccessB+Z)scale-handler/pkg/api/proto/scale-handlerb\x06proto3"
 
 var (
 	file_contracts_proto_rawDescOnce sync.Once
@@ -500,30 +582,37 @@ func file_contracts_proto_rawDescGZIP() []byte {
 	return file_contracts_proto_rawDescData
 }
 
-var file_contracts_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_contracts_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_contracts_proto_goTypes = []any{
-	(*CreateRequest)(nil),  // 0: scalehandler.CreateRequest
-	(*CreateResponse)(nil), // 1: scalehandler.CreateResponse
-	(*UpdateRequest)(nil),  // 2: scalehandler.UpdateRequest
-	(*UpdateResponse)(nil), // 3: scalehandler.UpdateResponse
-	(*GetRequest)(nil),     // 4: scalehandler.GetRequest
-	(*GetResponse)(nil),    // 5: scalehandler.GetResponse
-	(*ListRequest)(nil),    // 6: scalehandler.ListRequest
-	(*ListResponse)(nil),   // 7: scalehandler.ListResponse
-	(*DeleteRequest)(nil),  // 8: scalehandler.DeleteRequest
-	(*DeleteResponse)(nil), // 9: scalehandler.DeleteResponse
-	(*Schedule)(nil),       // 10: scalehandler.Schedule
+	(*CreateRequest)(nil),           // 0: scalehandler.CreateRequest
+	(*CreateResponse)(nil),          // 1: scalehandler.CreateResponse
+	(*UpdateRequest)(nil),           // 2: scalehandler.UpdateRequest
+	(*UpdateResponse)(nil),          // 3: scalehandler.UpdateResponse
+	(*GetRequest)(nil),              // 4: scalehandler.GetRequest
+	(*GetResponse)(nil),             // 5: scalehandler.GetResponse
+	(*ListRequest)(nil),             // 6: scalehandler.ListRequest
+	(*ScheduleWithApplication)(nil), // 7: scalehandler.ScheduleWithApplication
+	(*ListResponse)(nil),            // 8: scalehandler.ListResponse
+	(*DeleteRequest)(nil),           // 9: scalehandler.DeleteRequest
+	(*DeleteResponse)(nil),          // 10: scalehandler.DeleteResponse
+	(*Schedule)(nil),                // 11: scalehandler.Schedule
+	(*Application)(nil),             // 12: scalehandler.Application
 }
 var file_contracts_proto_depIdxs = []int32{
-	10, // 0: scalehandler.CreateRequest.schedule:type_name -> scalehandler.Schedule
-	10, // 1: scalehandler.UpdateRequest.schedule:type_name -> scalehandler.Schedule
-	10, // 2: scalehandler.GetResponse.schedule:type_name -> scalehandler.Schedule
-	10, // 3: scalehandler.ListResponse.schedules:type_name -> scalehandler.Schedule
-	4,  // [4:4] is the sub-list for method output_type
-	4,  // [4:4] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	11, // 0: scalehandler.CreateRequest.schedule:type_name -> scalehandler.Schedule
+	12, // 1: scalehandler.CreateRequest.application:type_name -> scalehandler.Application
+	11, // 2: scalehandler.UpdateRequest.schedule:type_name -> scalehandler.Schedule
+	12, // 3: scalehandler.UpdateRequest.application:type_name -> scalehandler.Application
+	11, // 4: scalehandler.GetResponse.schedule:type_name -> scalehandler.Schedule
+	12, // 5: scalehandler.GetResponse.application:type_name -> scalehandler.Application
+	11, // 6: scalehandler.ScheduleWithApplication.schedule:type_name -> scalehandler.Schedule
+	12, // 7: scalehandler.ScheduleWithApplication.application:type_name -> scalehandler.Application
+	7,  // 8: scalehandler.ListResponse.items:type_name -> scalehandler.ScheduleWithApplication
+	9,  // [9:9] is the sub-list for method output_type
+	9,  // [9:9] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_contracts_proto_init() }
@@ -538,7 +627,7 @@ func file_contracts_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_contracts_proto_rawDesc), len(file_contracts_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

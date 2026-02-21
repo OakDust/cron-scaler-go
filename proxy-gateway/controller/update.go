@@ -13,9 +13,22 @@ import (
 )
 
 type UpdateScheduleRequest struct {
-	Schedule *schedule.ScheduleDTO `json:"schedule"`
+	Schedule    *schedule.ScheduleDTO    `json:"schedule"`
+	Application *schedule.ApplicationDTO `json:"application"`
 }
 
+// UpdateSchedule godoc
+// @Summary      Обновить расписание
+// @Description  Обновляет расписание по ID
+// @Tags         schedules
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string  true  "Schedule UUID"
+// @Param        body  body      UpdateScheduleRequest  true  "Schedule and Application"
+// @Success      200   {object}  map[string]bool  "success"
+// @Failure      400   {object}  map[string]string  "error"
+// @Failure      500   {object}  map[string]string  "error"
+// @Router       /v1/schedules/{id} [put]
 func (c *Controller) UpdateSchedule(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	c.logger.Info("Handling update schedule request")
@@ -60,11 +73,12 @@ func (c *Controller) UpdateSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Конвертируем в proto и вызываем gRPC
 	protoSchedule := schedule.DTOToProto(req.Schedule)
+	protoApp := schedule.ApplicationDTOToProto(req.Application)
 	grpcReq := &scalehandlerv1.UpdateRequest{
-		Id:       id,
-		Schedule: protoSchedule,
+		Id:          id,
+		Schedule:    protoSchedule,
+		Application: protoApp,
 	}
 
 	resp, err := c.grpcClient.Update(ctx, grpcReq)

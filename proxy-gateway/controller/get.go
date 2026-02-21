@@ -10,6 +10,16 @@ import (
 	"github.com/google/uuid"
 )
 
+// GetSchedule godoc
+// @Summary      Получить расписание
+// @Description  Получает расписание по ID
+// @Tags         schedules
+// @Produce      json
+// @Param        id   path      string  true  "Schedule UUID"
+// @Success      200  {object}  map[string]interface{}  "schedule, application"
+// @Failure      400  {object}  map[string]string  "error"
+// @Failure      404  {object}  map[string]string  "error"
+// @Router       /v1/schedules/{id} [get]
 func (c *Controller) GetSchedule(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	c.logger.Info("Handling get schedule request")
@@ -36,10 +46,11 @@ func (c *Controller) GetSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Конвертируем в удобный REST-формат и возвращаем
 	scheduleDTO := schedule.ProtoToDTO(resp.Schedule)
+	appDTO := schedule.ProtoToApplicationDTO(resp.Application)
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"schedule": scheduleDTO,
+		"schedule":    scheduleDTO,
+		"application": appDTO,
 	})
 }
 

@@ -1,0 +1,285 @@
+basePath: /
+definitions:
+  controller.CreateScheduleRequest:
+    properties:
+      application:
+        $ref: '#/definitions/schedule.ApplicationDTO'
+      schedule:
+        $ref: '#/definitions/schedule.ScheduleDTO'
+    type: object
+  controller.UpdateScheduleRequest:
+    properties:
+      application:
+        $ref: '#/definitions/schedule.ApplicationDTO'
+      schedule:
+        $ref: '#/definitions/schedule.ScheduleDTO'
+    type: object
+  schedule.ApplicationDTO:
+    properties:
+      containers:
+        items:
+          $ref: '#/definitions/schedule.ContainerDTO'
+        type: array
+    type: object
+  schedule.ContainerDTO:
+    properties:
+      env:
+        items:
+          $ref: '#/definitions/schedule.EnvVarDTO'
+        type: array
+      image:
+        type: string
+      livenessProbe:
+        $ref: '#/definitions/schedule.ProbeDTO'
+      name:
+        type: string
+      ports:
+        items:
+          $ref: '#/definitions/schedule.ContainerPortDTO'
+        type: array
+      readinessProbe:
+        $ref: '#/definitions/schedule.ProbeDTO'
+      resources:
+        $ref: '#/definitions/schedule.ResourcesDTO'
+    type: object
+  schedule.ContainerPortDTO:
+    properties:
+      containerPort:
+        type: integer
+      protocol:
+        description: TCP, UDP
+        type: string
+    type: object
+  schedule.EnvVarDTO:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    type: object
+  schedule.HTTPGetActionDTO:
+    properties:
+      path:
+        type: string
+      port:
+        type: integer
+    type: object
+  schedule.ProbeDTO:
+    properties:
+      httpGet:
+        $ref: '#/definitions/schedule.HTTPGetActionDTO'
+      initialDelaySeconds:
+        type: integer
+      periodSeconds:
+        type: integer
+    type: object
+  schedule.ResourceQuantityDTO:
+    properties:
+      cpu:
+        type: string
+      memory:
+        type: string
+    type: object
+  schedule.ResourcesDTO:
+    properties:
+      limits:
+        $ref: '#/definitions/schedule.ResourceQuantityDTO'
+      requests:
+        $ref: '#/definitions/schedule.ResourceQuantityDTO'
+    type: object
+  schedule.ScheduleDTO:
+    properties:
+      dates:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/schedule.TimeRangeDTO'
+          type: array
+        type: object
+      exceptions:
+        items:
+          type: string
+        type: array
+      weekdays:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/schedule.TimeRangeDTO'
+          type: array
+        type: object
+    type: object
+  schedule.TimeRangeDTO:
+    properties:
+      from:
+        type: string
+      replicas:
+        type: integer
+      to:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API для управления расписаниями масштабирования
+  title: Cron Scaler Proxy Gateway API
+  version: "1.0"
+paths:
+  /v1/schedules:
+    get:
+      description: Возвращает все расписания
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: items
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Список расписаний
+      tags:
+      - schedules
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новое расписание масштабирования с указанием weekdays,
+        dates, exceptions и application
+      parameters:
+      - description: Schedule and Application
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CreateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: id
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создать расписание
+      tags:
+      - schedules
+  /v1/schedules/{id}:
+    delete:
+      description: Удаляет расписание и связанные K8s ресурсы
+      parameters:
+      - description: Schedule UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удалить расписание
+      tags:
+      - schedules
+    get:
+      description: Получает расписание по ID
+      parameters:
+      - description: Schedule UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: schedule, application
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить расписание
+      tags:
+      - schedules
+    put:
+      consumes:
+      - application/json
+      description: Обновляет расписание по ID
+      parameters:
+      - description: Schedule UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Schedule and Application
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UpdateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновить расписание
+      tags:
+      - schedules
+swagger: "2.0"

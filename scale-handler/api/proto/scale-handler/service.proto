@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package scalehandler;
 
-option go_package = "proxy-gateway/pkg/api/proto/scale-handler";
+option go_package = "scale-handler/pkg/api/proto/scale-handler";
 
 import "contracts.proto";
 

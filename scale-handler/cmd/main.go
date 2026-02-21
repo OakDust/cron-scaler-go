@@ -12,6 +12,7 @@ import (
 	"scale-handler/internal/app"
 	"scale-handler/internal/config"
 	"scale-handler/internal/controller"
+	"scale-handler/internal/k8s"
 	"scale-handler/internal/repository/postgres"
 	"scale-handler/internal/usecase"
 
@@ -52,11 +53,20 @@ func main() {
 	}
 	logger.Info("Database check passed, table exists")
 
-	// Инициализируем usecase
 	scheduleUC := usecase.NewScheduleUseCase(scheduleRepo, logger)
 
-	// Инициализируем контроллер
-	ctrl := controller.NewController(scheduleUC, logger)
+	var k8sReconciler *k8s.Reconciler
+	if cfg.Kubeconfig != "" {
+		var err error
+		k8sReconciler, err = k8s.NewReconciler(cfg.Kubeconfig, logger)
+		if err != nil {
+			logger.Warn("K8s reconciler disabled", "error", err)
+		} else {
+			logger.Info("K8s reconciler enabled", "kubeconfig", cfg.Kubeconfig)
+		}
+	}
+
+	ctrl := controller.NewController(scheduleUC, k8sReconciler, logger)
 
 	// Создаем gRPC сервер
 	grpcServer, err := app.NewGRPCServer(cfg.GRPCPort, ctrl, logger)

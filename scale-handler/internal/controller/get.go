@@ -17,10 +17,11 @@ func (c *Controller) Get(ctx context.Context, req *scalehandlerv1.GetRequest) (*
 		return nil, err
 	}
 
-	// Конвертируем доменную модель в proto
 	protoSchedule := converter.DomainToProto(schedule)
+	protoApplication := converter.ApplicationToProto(schedule.Application)
 
 	return &scalehandlerv1.GetResponse{
-		Schedule: protoSchedule,
+		Schedule:    protoSchedule,
+		Application: protoApplication,
 	}, nil
 }

@@ -30,7 +30,7 @@ const file_service_proto_rawDesc = "" +
 	"\x04List\x12\x19.scalehandler.ListRequest\x1a\x1a.scalehandler.ListResponse\x12:\n" +
 	"\x03Get\x12\x18.scalehandler.GetRequest\x1a\x19.scalehandler.GetResponse\x12C\n" +
 	"\x06Update\x12\x1b.scalehandler.UpdateRequest\x1a\x1c.scalehandler.UpdateResponse\x12C\n" +
-	"\x06Delete\x12\x1b.scalehandler.DeleteRequest\x1a\x1c.scalehandler.DeleteResponseB+Z)proxy-gateway/pkg/api/proto/scale-handlerb\x06proto3"
+	"\x06Delete\x12\x1b.scalehandler.DeleteRequest\x1a\x1c.scalehandler.DeleteResponseB+Z)scale-handler/pkg/api/proto/scale-handlerb\x06proto3"
 
 var file_service_proto_goTypes = []any{
 	(*CreateRequest)(nil),  // 0: scalehandler.CreateRequest

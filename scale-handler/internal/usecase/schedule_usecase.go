@@ -20,9 +20,9 @@ func NewScheduleUseCase(repo repository.ScheduleRepository, logger *slog.Logger)
 	}
 }
 
-func (uc *ScheduleUseCase) CreateSchedule(ctx context.Context, rules domain.ScheduleRules) (*domain.Schedule, error) {
+func (uc *ScheduleUseCase) CreateSchedule(ctx context.Context, rules domain.ScheduleRules, application *domain.Application) (*domain.Schedule, error) {
 	uc.logger.Debug("Creating schedule", "rules", rules)
-	return uc.repo.Create(ctx, rules)
+	return uc.repo.Create(ctx, rules, application)
 }
 
 func (uc *ScheduleUseCase) GetSchedule(ctx context.Context, id string) (*domain.Schedule, error) {
@@ -35,9 +35,9 @@ func (uc *ScheduleUseCase) ListSchedules(ctx context.Context) ([]*domain.Schedul
 	return uc.repo.List(ctx)
 }
 
-func (uc *ScheduleUseCase) UpdateSchedule(ctx context.Context, id string, rules domain.ScheduleRules) (*domain.Schedule, error) {
+func (uc *ScheduleUseCase) UpdateSchedule(ctx context.Context, id string, rules domain.ScheduleRules, application *domain.Application) (*domain.Schedule, error) {
 	uc.logger.Debug("Updating schedule", "id", id, "rules", rules)
-	return uc.repo.Update(ctx, id, rules)
+	return uc.repo.Update(ctx, id, rules, application)
 }
 
 func (uc *ScheduleUseCase) DeleteSchedule(ctx context.Context, id string) error {

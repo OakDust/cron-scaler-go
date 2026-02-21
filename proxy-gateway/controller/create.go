@@ -14,9 +14,21 @@ import (
 )
 
 type CreateScheduleRequest struct {
-	Schedule *schedule.ScheduleDTO `json:"schedule"`
+	Schedule    *schedule.ScheduleDTO    `json:"schedule"`
+	Application *schedule.ApplicationDTO `json:"application"`
 }
 
+// CreateSchedule godoc
+// @Summary      Создать расписание
+// @Description  Создаёт новое расписание масштабирования с указанием weekdays, dates, exceptions и application
+// @Tags         schedules
+// @Accept       json
+// @Produce      json
+// @Param        body  body  CreateScheduleRequest  true  "Schedule and Application"
+// @Success      201   {object}  map[string]string  "id"
+// @Failure      400  {object}  map[string]string  "error"
+// @Failure      500  {object}  map[string]string  "error"
+// @Router       /v1/schedules [post]
 func (c *Controller) CreateSchedule(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	c.logger.Info("Handling create schedule request")
@@ -51,10 +63,11 @@ func (c *Controller) CreateSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Конвертируем в proto и отправляем в gRPC
 	protoSchedule := schedule.DTOToProto(scheduleReq.Schedule)
+	protoApp := schedule.ApplicationDTOToProto(scheduleReq.Application)
 	req := &scalehandlerv1.CreateRequest{
-		Schedule: protoSchedule,
+		Schedule:    protoSchedule,
+		Application: protoApp,
 	}
 
 	resp, err := c.grpcClient.Create(ctx, req)
@@ -90,10 +103,12 @@ func (c *Controller) parseMultipartForm(r *http.Request) (CreateScheduleRequest,
 		return CreateScheduleRequest{}, fmt.Errorf("failed to parse form: %w", err)
 	}
 
-	// Пытаемся получить JSON из поля "schedule"
 	jsonStr := r.FormValue("schedule")
 	if jsonStr == "" {
-		return CreateScheduleRequest{}, fmt.Errorf("field 'schedule' is required")
+		jsonStr = r.FormValue("data")
+	}
+	if jsonStr == "" {
+		return CreateScheduleRequest{}, fmt.Errorf("field 'schedule' or 'data' is required")
 	}
 
 	var req CreateScheduleRequest

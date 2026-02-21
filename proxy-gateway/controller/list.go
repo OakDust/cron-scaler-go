@@ -7,6 +7,14 @@ import (
 	"proxy-gateway/pkg/schedule"
 )
 
+// ListSchedules godoc
+// @Summary      Список расписаний
+// @Description  Возвращает все расписания
+// @Tags         schedules
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}  "items"
+// @Failure      500  {object}  map[string]string  "error"
+// @Router       /v1/schedules [get]
 func (c *Controller) ListSchedules(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	c.logger.Info("Handling list schedules request")
@@ -20,13 +28,17 @@ func (c *Controller) ListSchedules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Конвертируем в удобный REST-формат
-	schedulesDTO := make([]*schedule.ScheduleDTO, len(resp.Schedules))
-	for i, s := range resp.Schedules {
-		schedulesDTO[i] = schedule.ProtoToDTO(s)
+	items := make([]map[string]interface{}, len(resp.Items))
+	for i, item := range resp.Items {
+		scheduleDTO := schedule.ProtoToDTO(item.Schedule)
+		appDTO := schedule.ProtoToApplicationDTO(item.Application)
+		items[i] = map[string]interface{}{
+			"schedule":    scheduleDTO,
+			"application": appDTO,
+		}
 	}
 
 	writeJSON(w, http.StatusOK, map[string]interface{}{
-		"schedules": schedulesDTO,
+		"items": items,
 	})
 }
