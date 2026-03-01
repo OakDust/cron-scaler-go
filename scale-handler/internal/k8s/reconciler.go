@@ -178,6 +178,20 @@ func (r *Reconciler) buildDeployment(name string, app *domain.Application) *apps
 		containers[i] = r.containerToK8s(c)
 	}
 
+	for i := range containers {
+		containers[i].Lifecycle = &corev1.Lifecycle{
+			PreStop: &corev1.LifecycleHandler{
+				Exec: &corev1.ExecAction{
+					Command: []string{
+						"/bin/sh",
+						"-c",
+						"sleep 30",
+					},
+				},
+			},
+		}
+	}
+
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
@@ -193,11 +207,16 @@ func (r *Reconciler) buildDeployment(name string, app *domain.Application) *apps
 					Labels: map[string]string{"app": name},
 				},
 				Spec: corev1.PodSpec{
-					Containers: containers,
+					Containers:                    containers,
+					TerminationGracePeriodSeconds: int64Ptr(60),
 				},
 			},
 		},
 	}
+}
+
+func int64Ptr(i int64) *int64 {
+	return &i
 }
 
 func (r *Reconciler) containerToK8s(c domain.Container) corev1.Container {
@@ -366,8 +385,8 @@ func (r *Reconciler) buildScaledObject(name string, rules *domain.ScheduleRules)
 					"name": name,
 				},
 				"minReplicaCount": 0,
-				"maxReplicaCount": 100,
-				"cooldownPeriod":  300,
+				"maxReplicaCount": 15,
+				"cooldownPeriod":  0,
 				"triggers":        triggers,
 			},
 		},

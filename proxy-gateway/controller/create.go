@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -125,8 +126,12 @@ func (c *Controller) validateScheduleDTO(s *schedule.ScheduleDTO) error {
 	// Формат даты ISO 8601: YYYY-MM-DD
 	dateRegex := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
-	// Проверяем weekdays
+	// Проверяем weekdays + пересечение интервалов
 	for day, ranges := range s.Weekdays {
+		if len(ranges) == 0 {
+			continue
+		}
+		// базовая проверка формата + from < to
 		for _, tr := range ranges {
 			if !timeRegex.MatchString(tr.From) {
 				return fmt.Errorf("invalid time format for 'from' in %s: %s", day, tr.From)
@@ -140,12 +145,35 @@ func (c *Controller) validateScheduleDTO(s *schedule.ScheduleDTO) error {
 				return fmt.Errorf("'from' time must be before 'to' time: %s - %s", tr.From, tr.To)
 			}
 		}
+		// запрет пересечения интервалов
+		if err := ensureNoOverlapDTO(day, ranges); err != nil {
+			return err
+		}
 	}
 
-	// Проверяем dates (формат YYYY-MM-DD)
-	for date := range s.Dates {
+	// Проверяем dates (формат YYYY-MM-DD) и пересечение интервалов для каждой даты
+	for date, ranges := range s.Dates {
 		if !dateRegex.MatchString(date) {
 			return fmt.Errorf("invalid date format: %s, expected YYYY-MM-DD", date)
+		}
+		if len(ranges) == 0 {
+			continue
+		}
+		for _, tr := range ranges {
+			if !timeRegex.MatchString(tr.From) {
+				return fmt.Errorf("invalid time format for 'from' in date %s: %s", date, tr.From)
+			}
+			if !timeRegex.MatchString(tr.To) {
+				return fmt.Errorf("invalid time format for 'to' in date %s: %s", date, tr.To)
+			}
+			fromTime, _ := time.Parse("15:04", tr.From)
+			toTime, _ := time.Parse("15:04", tr.To)
+			if !fromTime.Before(toTime) {
+				return fmt.Errorf("'from' time must be before 'to' time in date %s: %s - %s", date, tr.From, tr.To)
+			}
+		}
+		if err := ensureNoOverlapDTO(date, ranges); err != nil {
+			return err
 		}
 	}
 
@@ -163,8 +191,11 @@ func (c *Controller) validateSchedule(s *scalehandlerv1.Schedule) error {
 	timeRegex := regexp.MustCompile(`^([01]?[0-9]|2[0-3]):[0-5][0-9]$`)
 	dateRegex := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
 
-	for _, daySchedule := range s.Weekdays {
+	for name, daySchedule := range s.Weekdays {
 		if daySchedule == nil {
+			continue
+		}
+		if len(daySchedule.TimeRanges) == 0 {
 			continue
 		}
 		for _, tr := range daySchedule.TimeRanges {
@@ -183,11 +214,36 @@ func (c *Controller) validateSchedule(s *scalehandlerv1.Schedule) error {
 				return fmt.Errorf("'from' time must be before 'to' time: %s - %s", tr.From, tr.To)
 			}
 		}
+		if err := ensureNoOverlapProto(name, daySchedule.TimeRanges); err != nil {
+			return err
+		}
 	}
 
-	for date := range s.Dates {
+	for date, daySchedule := range s.Dates {
 		if !dateRegex.MatchString(date) {
 			return fmt.Errorf("invalid date format: %s, expected YYYY-MM-DD", date)
+		}
+		if daySchedule == nil || len(daySchedule.TimeRanges) == 0 {
+			continue
+		}
+		for _, tr := range daySchedule.TimeRanges {
+			if tr == nil {
+				continue
+			}
+			if !timeRegex.MatchString(tr.From) {
+				return fmt.Errorf("invalid time format for 'from' in date %s: %s", date, tr.From)
+			}
+			if !timeRegex.MatchString(tr.To) {
+				return fmt.Errorf("invalid time format for 'to' in date %s: %s", date, tr.To)
+			}
+			fromTime, _ := time.Parse("15:04", tr.From)
+			toTime, _ := time.Parse("15:04", tr.To)
+			if !fromTime.Before(toTime) {
+				return fmt.Errorf("'from' time must be before 'to' time in date %s: %s - %s", date, tr.From, tr.To)
+			}
+		}
+		if err := ensureNoOverlapProto(date, daySchedule.TimeRanges); err != nil {
+			return err
 		}
 	}
 
@@ -197,5 +253,70 @@ func (c *Controller) validateSchedule(s *scalehandlerv1.Schedule) error {
 		}
 	}
 
+	return nil
+}
+
+func ensureNoOverlapDTO(name string, ranges []schedule.TimeRangeDTO) error {
+	if len(ranges) < 2 {
+		return nil
+	}
+	sorted := make([]schedule.TimeRangeDTO, len(ranges))
+	copy(sorted, ranges)
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].From < sorted[j].From
+	})
+	prevFrom, _ := time.Parse("15:04", sorted[0].From)
+	prevTo, _ := time.Parse("15:04", sorted[0].To)
+	for i := 1; i < len(sorted); i++ {
+		curFrom, _ := time.Parse("15:04", sorted[i].From)
+		curTo, _ := time.Parse("15:04", sorted[i].To)
+		if curFrom.Before(prevTo) {
+			return fmt.Errorf("time ranges overlap in %s: %s-%s and %s-%s",
+				name, prevFrom.Format("15:04"), prevTo.Format("15:04"), curFrom.Format("15:04"), curTo.Format("15:04"))
+		}
+		prevFrom, prevTo = curFrom, curTo
+	}
+	return nil
+}
+
+func ensureNoOverlapProto(name string, ranges []*scalehandlerv1.TimeRange) error {
+	if len(ranges) < 2 {
+		return nil
+	}
+	type trWithParsed struct {
+		from time.Time
+		to   time.Time
+		raw  *scalehandlerv1.TimeRange
+	}
+	tmp := make([]trWithParsed, 0, len(ranges))
+	for _, r := range ranges {
+		if r == nil {
+			continue
+		}
+		fromTime, err1 := time.Parse("15:04", r.From)
+		toTime, err2 := time.Parse("15:04", r.To)
+		if err1 != nil || err2 != nil {
+			continue
+		}
+		tmp = append(tmp, trWithParsed{from: fromTime, to: toTime, raw: r})
+	}
+	if len(tmp) < 2 {
+		return nil
+	}
+	sort.Slice(tmp, func(i, j int) bool {
+		return tmp[i].from.Before(tmp[j].from)
+	})
+	prev := tmp[0]
+	for i := 1; i < len(tmp); i++ {
+		cur := tmp[i]
+		if cur.from.Before(prev.to) {
+			return fmt.Errorf("time ranges overlap in %s: %s-%s and %s-%s",
+				name,
+				prev.from.Format("15:04"), prev.to.Format("15:04"),
+				cur.from.Format("15:04"), cur.to.Format("15:04"),
+			)
+		}
+		prev = cur
+	}
 	return nil
 }

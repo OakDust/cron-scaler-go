@@ -31,3 +31,6 @@ go.work.sum
 # .idea/
 # .vscode/
 task.txt
+
+ui/node_modules
+ui/node_modules/*
