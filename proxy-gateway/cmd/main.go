@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"os"
 	"os/signal"
 	"syscall"
@@ -43,8 +44,10 @@ func main() {
 	defer ctrl.Close()
 
 	apiRouter := controller.NewRouter(ctrl)
+	corsHandler := withCORS(apiRouter, cfg.CORSAllowOrigin)
+
 	mux := http.NewServeMux()
-	mux.Handle("/", apiRouter)
+	mux.Handle("/", corsHandler)
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	logger.Info("Starting proxy-gateway",
@@ -89,4 +92,36 @@ func setupLogger() *slog.Logger {
 	return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	}))
+}
+
+func withCORS(next http.Handler, allowOrigin string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := allowOrigin
+		if origin == "" {
+			origin = "*"
+		}
+
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Vary", "Origin")
+		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Простая поддержка нескольких origin через запятую, если указано в конфиге
+		if strings.Contains(origin, ",") {
+			requestOrigin := r.Header.Get("Origin")
+			for _, o := range strings.Split(origin, ",") {
+				if strings.TrimSpace(o) == requestOrigin {
+					w.Header().Set("Access-Control-Allow-Origin", requestOrigin)
+					break
+				}
+			}
+		}
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }

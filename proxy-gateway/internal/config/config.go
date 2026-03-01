@@ -9,14 +9,16 @@ import (
 type Config struct {
 	HTTPPort       string
 	GRPCServerAddr string
+	CORSAllowOrigin string
 }
 
 func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	return &Config{
-		HTTPPort:       getEnv("HTTP_PORT", "8080"),
-		GRPCServerAddr: getEnv("GRPC_SERVER_ADDR", "localhost:50051"),
+		HTTPPort:        getEnv("HTTP_PORT", "8080"),
+		GRPCServerAddr:  getEnv("GRPC_SERVER_ADDR", "localhost:50051"),
+		CORSAllowOrigin: getEnv("CORS_ALLOW_ORIGIN", "*"),
 	}, nil
 }
 
